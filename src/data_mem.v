@@ -17,9 +17,9 @@ module data_ram (
         if (we) begin
             mem[addr[9:2]] <= din;
             $display("Memory Write: Addr = %d, Data = %d", addr, dout);
-            $strobe("mem[100] = %0d", mem[100]);
         end
     end
+
 
 
 
