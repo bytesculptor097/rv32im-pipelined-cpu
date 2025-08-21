@@ -369,34 +369,4 @@ if_stage pc_if_imem (
     end
 
 
-// ===========================================================
-// Pipeline debug monitor
-// ===========================================================
-
-wire sum;
-assign sum = pc_ID_EX + imm_EX;
-// One-line snapshot per cycle, single quoted string
-always @(posedge clk) begin
-    if (!rst) begin
-        $strobe("C%0d | %08x | %08x | %08x | ID: x%0d x%0d x%0d %02x %01x %02x %08x | CTRL: %1b %1b %1b %1b %1b %1b %1b %1b %02b %03b | EX: %08x %08x %04b %08x %1b | MEM: %08x %08x %1b %08x | WB: x%0d %1b %08x",
-            cycle, pc_curr, pc_next, instr_ID,
-            rs1, rs2, rd, opcode, funct3, funct7, imm,
-            regwrite, alusrc, memread, memwrite, memtoreg,
-            branch, jump, jump_r, aluop, branch_type,
-            alu_A, alu_B, alu_control, alu_result, zero,
-            alu_result_EX, rs2_val_EX, memwrite_MEM, mem_data,
-            rd_WB, reg_write, write_data_core
-        );
-
-    end
-    $display("BT_EX=%b | pc_ID_EX=%h | imm_EX=%h | target=%h",
-         branch_taken_EX, pc_ID_EX, imm_EX, pc_ID_EX + imm_EX);
-
-    $display("branch_EX=%b | taken_EX=%b | taken&branch=%b",
-         branch_EX, branch_taken_EX, (branch_EX && branch_taken_EX));
-
-end
-
-
-
 endmodule
