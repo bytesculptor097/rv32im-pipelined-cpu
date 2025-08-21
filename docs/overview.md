@@ -29,11 +29,6 @@ The CPU consists of the following stages, encapsulated in a modular Verilog unit
 - Selects between ALU result and memory data based on instruction type
 - Ensures correct register file update and architectural state consistency
 
-## Supported Instructions
-
-- **RV32I Base**: `ADD`, `SUB`, `AND`, `OR`, `XOR`, `LW`, `SW`, `BEQ`, `BNE`, `JAL`, `JALR`, etc.
-- **RV32M Extension**: `MUL`, `DIV`, `REM`, and variants
-
 ## Key Features
 
 - Modular stage-wise design with clean interfaces
