@@ -6,8 +6,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 
 - **RV32IM Support**: Implements the full 32-bit base integer instruction set (RV32I), plus multiplication and division extensions (M).
 - **5-Stage Pipeline**: Fetch, Decode, Execute, Memory, and Write-back stages for efficient instruction processing.
-- **Hazard Handling**: Includes basic mechanisms for data forwarding and pipeline stalling to resolve data and control hazards.
-- **Branch Prediction**: (Optional) Simple branch prediction logic for improved control flow efficiency.
+- **Hazard Handling**: Includes basic mechanisms for data forwarding and pipeline stalling to resolve data and control hazards.s
 - **Memory Interface**: Supports interaction with instruction and data memory modules.
 - **Testbench**: Reference testbench for simulation and validation.
 
