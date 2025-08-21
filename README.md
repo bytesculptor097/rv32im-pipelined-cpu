@@ -25,7 +25,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 ### Prerequisites
 
 - [Verilog/SystemVerilog](https://www.verilog.com/) simulator (e.g., Icarus Verilog, ModelSim, or Vivado)
-- (Optional) RISC-V toolchain for generating machine code
+- RISC-V toolchain for generating machine code
 
 ### Running Simulations
 
