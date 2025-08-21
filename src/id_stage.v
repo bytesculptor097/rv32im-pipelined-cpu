@@ -213,16 +213,7 @@ end
     initial begin
         for (i = 0; i < 32; i = i + 1) begin
             regs[i] = 32'b0;
-        end
-        regs[2] = 32'd10; 
-        regs[5] = 32'd100; 
-        regs[6] = 32'd42; 
+        end 
     end
-
-    always @(posedge clk) begin
-        #100
-        $strobe("x1 = %d, x2 = %d, x9 = %d", regs[1], regs[2], regs[9]);
-    end   
-
 
 endmodule
