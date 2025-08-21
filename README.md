@@ -35,8 +35,15 @@ This repository contains a custom implementation of a pipelined CPU based on the
     git clone https://github.com/bytesculptor097/rv32im-pipelined-cpu.git
     cd rv32im-pipelined-cpu
     ```
-2. Compile source and testbench files using your preferred simulator.
+2. Compile the source code
+    ```bash
+    cd src
+    make all
+    ```
 3. Run the simulation and inspect the waveform/logs for correct behavior.
+   ```bash
+   vvp rv32im.vvp
+   ```
 
 ### File Overview
 
