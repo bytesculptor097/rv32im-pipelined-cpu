@@ -79,5 +79,3 @@ All instructions listed above have been:
 - Future extensions may include CSR instructions, floating-point operations, and interrupt handling.
 
 ---
-
-For waveform traces, test programs, and validation artifacts, refer to the `docs/` and `test/` directories in the repository.
