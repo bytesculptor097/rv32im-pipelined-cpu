@@ -14,7 +14,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 
 ```
 .
-├── src/          # Verilog/SystemVerilog source files for CPU and components
+├── rtl/          # Verilog source files for CPU and components
 ├── testbench/    # Simulation files and testcases
 ├── docs/         # Design documentation (pipeline diagrams, timing analysis, etc.)
 ├── assembly-tests/ # Sample test assembly codes
