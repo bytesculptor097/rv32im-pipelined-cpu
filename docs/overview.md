@@ -1,6 +1,6 @@
 # Pipeline Architecture
 
-The CPU consists of the following stages, encapsulated in a modular Verilog (core.v) unit with dedicated pipeline registers:
+The CPU consists of the following stages, encapsulated in a modular Verilog unit (core.v)  with dedicated pipeline registers:
 
 ### 1. Instruction Fetch (IF)
 - Fetches instruction from instruction memory using the current Program Counter (PC)
