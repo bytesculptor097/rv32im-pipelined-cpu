@@ -1,6 +1,6 @@
 Certainly, Ahtesham. Here's a clean and technically accurate `README.md` focused on installing the RISC-V GNU toolchain for RV32IM development and simulation:
 
-```markdown
+
 # Installing RISC-V GNU Toolchain for RV32IM Development
 
 This guide outlines the steps to install the official RISC-V GNU toolchain, suitable for compiling and simulating RV32IM assembly programs. The toolchain includes `riscv32-unknown-elf-gcc`, `objdump`, `as`, and other utilities required for bare-metal development.
