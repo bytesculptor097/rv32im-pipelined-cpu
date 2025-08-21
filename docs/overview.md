@@ -1,8 +1,4 @@
-# RV32IM Pipelined CPU Core
-
-This module implements a 5-stage pipelined CPU core conforming to the RV32IM instruction set architecture. It is designed for modularity, waveform-level validation, and robust control hazard handling.
-
-## Pipeline Architecture
+# Pipeline Architecture
 
 The CPU consists of the following stages, each encapsulated in a modular Verilog unit with dedicated pipeline registers:
 
@@ -57,7 +53,3 @@ The CPU consists of the following stages, each encapsulated in a modular Verilog
 - Designed to be integrated into a larger SoC or simulation environment
 - Compatible with standard Verilog simulation tools
 - Interfaces exposed for instruction memory, data memory, and external control
-
-## Author
-
-Developed by Ahtesham — with a focus on architectural clarity, hazard resilience, and waveform-level validation.
