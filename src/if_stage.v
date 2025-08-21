@@ -49,9 +49,7 @@ module if_stage (
     end
 
 initial begin
-  mem[0] = 32'h0062a023;
-  mem[1] = 32'h0002a383; 
-  mem[2] = 32'h002384b3;
+    $readmemh("instr.hex", mem);
 end
 
 
@@ -67,3 +65,4 @@ end
     end
 
 endmodule
+
