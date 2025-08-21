@@ -51,7 +51,6 @@ See the [docs](./docs/) folder for:
 - Pipeline architecture overview
 - Hazard detection and forwarding logic
 - Example instruction flows
-- Benchmark results
 - RISC-V GNU toolchain installation
 
 ## Contributing
