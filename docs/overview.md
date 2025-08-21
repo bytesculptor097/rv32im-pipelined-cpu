@@ -1,33 +1,63 @@
-# Pipelined RV32IM CPU Core
+# RV32IM Pipelined CPU Core
 
-This repository showcases a custom-designed 5-stage pipelined RV32IM CPU core, built from the ground up with modularity, waveform-level validation, and architectural clarity in mind. It represents a significant leap from the single-cycle design, emphasizing control hazard handling, flush mechanisms, and extensible pipeline behavior.
+This module implements a 5-stage pipelined CPU core conforming to the RV32IM instruction set architecture. It is designed for modularity, waveform-level validation, and robust control hazard handling.
 
-## Overview
+## Pipeline Architecture
 
-The CPU implements the RV32IM instruction set architecture with the following pipeline stages:
+The CPU consists of the following stages, each encapsulated in a modular Verilog unit with dedicated pipeline registers:
 
-1. **IF (Instruction Fetch)**  
-2. **ID (Instruction Decode & Register Read)**  
-3. **EX (Execute / ALU Operations)**  
-4. **MEM (Memory Access)**  
-5. **WB (Write Back)**  
+### 1. Instruction Fetch (IF)
+- Fetches instruction from instruction memory using the current Program Counter (PC)
+- Handles PC updates for sequential execution and branch/jump targets
+- Outputs instruction and updated PC to the next stage
 
-Each stage is modularly designed with clear interface boundaries and pipeline registers to ensure correct data/control propagation and hazard isolation.
+### 2. Instruction Decode (ID)
+- Decodes instruction fields (opcode, funct3, funct7, rs1, rs2, rd)
+- Reads source operands from the register file
+- Generates control signals for execution, memory access, and write-back
+- Prepares immediate values and passes control/data to EX stage
+
+### 3. Execute (EX)
+- Performs ALU operations (arithmetic, logical, comparisons)
+- Computes branch/jump targets and evaluates branch conditions
+- Handles multiplication/division for RV32M instructions
+- Outputs ALU result, branch decision, and memory address to MEM stage
+
+### 4. Memory Access (MEM)
+- Performs load/store operations with data memory
+- Applies byte/halfword/word alignment and sign-extension as needed
+- Forwards ALU result or loaded data to WB stage
+
+### 5. Write Back (WB)
+- Writes result back to the destination register (`rd`)
+- Selects between ALU result and memory data based on instruction type
+- Ensures correct register file update and architectural state consistency
+
+## Supported Instructions
+
+- **RV32I Base**: `ADD`, `SUB`, `AND`, `OR`, `XOR`, `LW`, `SW`, `BEQ`, `BNE`, `JAL`, `JALR`, etc.
+- **RV32M Extension**: `MUL`, `DIV`, `REM`, and variants
 
 ## Key Features
 
-- Full support for RV32I base instructions and RV32M extensions (e.g., `MUL`, `DIV`)
+- Modular stage-wise design with clean interfaces
 - Branch and jump logic with flush and control hazard mitigation
-- Minimal test programs for validating instruction behavior and pipeline correctness
-- Waveform-level validation using simulation traces
-- Modular design for extensibility and future architectural enhancements
-- Regression suite covering arithmetic, memory, and control flow instructions
+- Minimal test programs for instruction-level and hazard-level validation
+- Waveform-level verification of architectural invariants
+- Designed for extensibility and future architectural enhancements
 
 ## Validation Strategy
 
-- **Waveform Probes**: Each architectural invariant is validated via waveform inspection, including register file updates, PC alignment, and memory access correctness.
-- **Minimal Assembly Tests**: Custom programs (e.g., Fibonacci sequence, memory stress tests) are used to isolate and validate pipeline behavior.
-- **Hazard Handling**: Control hazards are exercised through jump/branch sequences, with flush logic verified across edge cases.
+- **Waveform Inspection**: Register file updates, PC alignment, memory access correctness
+- **Minimal Assembly Tests**: Fibonacci sequence, memory stress tests, control flow probes
+- **Regression Suite**: Covers arithmetic, memory, and control instructions under pipeline conditions
 
-## Directory Structure
+## Integration Notes
 
+- Designed to be integrated into a larger SoC or simulation environment
+- Compatible with standard Verilog simulation tools
+- Interfaces exposed for instruction memory, data memory, and external control
+
+## Author
+
+Developed by Ahtesham — with a focus on architectural clarity, hazard resilience, and waveform-level validation.
