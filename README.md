@@ -18,6 +18,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 ├── testbench/    # Simulation files and testcases
 ├── docs/         # Design documentation (pipeline diagrams, timing analysis, etc.)
 ├── README.md     # Project overview and instructions
+├── LICENSE       # Project license
 ```
 
 ## Getting Started
