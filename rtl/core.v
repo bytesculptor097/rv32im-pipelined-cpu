@@ -33,6 +33,7 @@ module core (
     wire [31:0] pc_curr;
     wire stall; 
     wire flush;
+    wire is_auipc, is_lui;
 
 // ==================================
 // Pipeline register declarations
@@ -44,11 +45,13 @@ module core (
 
 reg [31:0] instr_ID;
 assign flush = branch_taken_EX || jump_EX || jump_r_EX;
-reg pc_ID;
+reg [31:0] pc_ID;
+
+localparam [31:0] NOP = 32'h0000_0013;
 
 always @(posedge clk or posedge rst) begin
   if (rst || flush) begin
-    instr_ID <= 32'd0;
+    instr_ID <= NOP;
     pc_ID <= 32'd0;
   end else if(!stall) begin
     instr_ID <= ram_out; // fetched instruction advances every cycle
@@ -80,6 +83,8 @@ reg [1:0]  aluop_EX;
 reg [31:0] imm_EX;
 reg jump_EX;
 reg jump_r_EX;
+reg is_auipc_EX;
+reg is_lui_EX;
 
 always @(posedge clk or posedge rst) begin
   if (rst || flush) begin         // flush must also bubble ID/EX
@@ -102,6 +107,8 @@ always @(posedge clk or posedge rst) begin
     branch_type_EX <= 3'd0;
     jump_EX        <= 1'b0;
     jump_r_EX      <= 1'b0;
+    is_auipc_EX    <= 1'b0;
+    is_lui_EX      <= 1'b0;
   end else if (stall) begin
     // Insert bubble on stall (hold IF/ID externally)
     rd_EX          <= 5'd0;
@@ -123,6 +130,8 @@ always @(posedge clk or posedge rst) begin
     branch_type_EX <= 3'd0;
     jump_EX        <= 1'b0;
     jump_r_EX      <= 1'b0;
+    is_auipc_EX    <= 1'b0;
+    is_lui_EX      <= 1'b0;
     
   end else begin
     aluop_EX       <= aluop;
@@ -144,34 +153,43 @@ always @(posedge clk or posedge rst) begin
     branch_type_EX <= branch_type;
     jump_EX        <= jump;
     jump_r_EX      <= jump_r;
+    is_auipc_EX    <= is_auipc;
+    is_lui_EX      <= is_lui;
   end
 end
 
 wire [31:0] alu_A =
+    is_lui_EX   ? 32'd0 :
+    is_auipc_EX ? pc_ID_EX :
     (forwardA == 2'b10) ? alu_result_MEM :
     (forwardA == 2'b01) ? write_data_core :
-                           rs1_val_EX;
+                          rs1_val_EX;
 
-wire [31:0] alu_B_pre =
+wire [31:0] alu_B =
+    alusrc_EX ? imm_EX :
     (forwardB == 2'b10) ? alu_result_MEM :
     (forwardB == 2'b01) ? write_data_core :
-                           rs2_val_EX;
+                          rs2_val_EX;
 
-wire [31:0] alu_B = alusrc_EX ? imm_EX : alu_B_pre;
+wire [31:0] branch_B =
+    (forwardB == 2'b10) ? alu_result_MEM :
+    (forwardB == 2'b01) ? write_data_core :
+                          rs2_val_EX;
+
+
 
 reg branch_taken_EX;
 
 always @* begin
   branch_taken_EX = 1'b0;
   if (branch_EX) begin
-    case (branch_type_EX) // should be the branch funct3
-      3'b000: branch_taken_EX = (alu_A == alu_B_pre);                      // BEQ
-      3'b001: branch_taken_EX = (alu_A != alu_B_pre);                      // BNE
-      3'b100: branch_taken_EX = ($signed(alu_A) <  $signed(alu_B_pre));    // BLT
-      3'b101: branch_taken_EX = ($signed(alu_A) >= $signed(alu_B_pre));    // BGE
-      3'b110: branch_taken_EX = (alu_A <  alu_B_pre);                      // BLTU
-      3'b111: branch_taken_EX = (alu_A >= alu_B_pre);                      // BGEU
-      default: branch_taken_EX = 1'b0;
+    case (branch_type_EX)
+      3'b000: branch_taken_EX = (alu_A == branch_B);                      // BEQ
+      3'b001: branch_taken_EX = (alu_A != branch_B);                      // BNE
+      3'b100: branch_taken_EX = ($signed(alu_A) <  $signed(branch_B));    // BLT
+      3'b101: branch_taken_EX = ($signed(alu_A) >= $signed(branch_B));    // BGE
+      3'b110: branch_taken_EX = (alu_A <  branch_B);                      // BLTU
+      3'b111: branch_taken_EX = (alu_A >= branch_B);                      // BGEU
     endcase
   end
 end
@@ -246,13 +264,18 @@ always @(posedge clk or posedge rst) begin
   end
 end
 
+// Choose rs2 value with forwarding for stores
+wire [31:0] rs2_for_store_EX =
+    (forwardB == 2'b10) ? alu_result_MEM :
+    (forwardB == 2'b01) ? write_data_core :
+                          rs2_val_EX;
 reg [31:0] rs2_val_MEM;
 
 always @(posedge clk or posedge rst) begin
   if (rst) begin
     rs2_val_MEM <= 32'd0;
   end else begin
-    rs2_val_MEM <= rs2_val_EX;
+    rs2_val_MEM <= rs2_for_store_EX;
   end
 end
 
@@ -291,6 +314,7 @@ hazard_detection_unit hdu (
 if_stage pc_if_imem (
     .clk(clk),
     .rst(rst),
+    .stall(stall),
     .branch_taken(branch_taken_EX),
     .pc_branch(pc_ID_EX),
     .imm(imm_EX),
@@ -334,6 +358,8 @@ if_stage pc_if_imem (
         .memtoreg(memtoreg),
         .ALUOp(aluop),
         .branch_type(branch_type),
+        .AUIPC(is_auipc),
+        .LUI(is_lui),
         .rs1_val(rs1value),
         .rs2_val(rs2value)
     );
@@ -367,6 +393,36 @@ if_stage pc_if_imem (
     always @(posedge clk) begin
         cycle <= cycle + 1;
     end
+
+
+// ===========================================================
+// Pipeline debug monitor
+// ===========================================================
+
+wire sum;
+assign sum = pc_ID_EX + imm_EX;
+// One-line snapshot per cycle, single quoted string
+always @(posedge clk) begin
+    if (!rst) begin
+        $strobe("C%0d | %08x | %08x | %08x | ID: x%0d x%0d x%0d %02x %01x %02x %08x | CTRL: %1b %1b %1b %1b %1b %1b %1b %1b %02b %03b | EX: %08x %08x %04b %08x %1b | MEM: %08x %08x %1b %08x | WB: x%0d %1b %08x",
+            cycle, pc_curr, pc_next, instr_ID,
+            rs1, rs2, rd, opcode, funct3, funct7, imm,
+            regwrite, alusrc, memread, memwrite, memtoreg,
+            branch, jump, jump_r, aluop, branch_type,
+            alu_A, alu_B, alu_control, alu_result, zero,
+            alu_result_EX, rs2_val_EX, memwrite_MEM, mem_data,
+            rd_WB, reg_write, write_data_core
+        );
+
+    end
+    $display("BT_EX=%b | pc_ID_EX=%h | imm_EX=%h | target=%h",
+         branch_taken_EX, pc_ID_EX, imm_EX, pc_ID_EX + imm_EX);
+
+    $display("branch_EX=%b | taken_EX=%b | taken&branch=%b",
+         branch_EX, branch_taken_EX, (branch_EX && branch_taken_EX));
+
+end
+
 
 
 endmodule

@@ -58,7 +58,7 @@ always @(*) begin
             endcase
         end
 
-        2'b11: ALUControl = 4'b1110; // LUI or AUIPC
+        2'b11: ALUControl = 4'b0010; // LUI and AUIPC
 
         default: ALUControl = 4'b1111; // Unknown
     endcase

@@ -25,6 +25,8 @@ module id_stage (
     output reg         memtoreg,
     output reg   [1:0] ALUOp,
     output reg   [2:0] branch_type,
+    output reg         AUIPC,
+    output reg         LUI,
 
     // Register values
     output wire [31:0] rs1_val,
@@ -38,6 +40,7 @@ module id_stage (
     reg [4:0]  rd_r, rs1_r, rs2_r;
     reg [2:0]  funct3_r;
     reg [31:0] imm_r;
+
 
     assign opcode  = opcode_r;
     assign funct7  = funct7_r;
@@ -123,6 +126,8 @@ module id_stage (
         memtoreg    = 1'b0;
         Jump        = 1'b0;
         Jump_r      = 1'b0;
+        AUIPC       = 1'b0;
+        LUI         = 1'b0;
 
         case (opcode)
             7'b0110011: begin // R-type
@@ -132,7 +137,7 @@ module id_stage (
                 memtoreg = 1'b0;
             end
 
-            7'b0010011: begin // I-type ALU
+            7'b0010011: begin // I-type
                 ALUSrc   = 1'b1;
                 ALUOp    = 2'b00;
                 RegWrite = 1'b1;
@@ -165,6 +170,7 @@ module id_stage (
                 ALUOp    = 2'b00;
                 RegWrite = 1'b1;
                 memtoreg = 1'b0;
+                LUI      = 1'b1;
             end
 
             7'b1101111: begin // JAL
@@ -188,32 +194,47 @@ module id_stage (
                 ALUOp    = 2'b11;
                 RegWrite = 1'b1;
                 memtoreg = 1'b0;
+                AUIPC    = 1'b1;
             end
         endcase
     end
 
-    //-----------------------------------------------------
-    // Register File
-    //-----------------------------------------------------  
-    reg [31:0] regs [0:31];
+//-----------------------------------------------------
+// Register File 
+//-----------------------------------------------------  
+reg [31:0] regs [0:31];
 
-    // Read logic
-    assign rs1_val = regs[rs1];
-    assign rs2_val = regs[rs2];
+// Combinational read with write-through bypass
+assign rs1_val = (rs1 == 5'd0) ? 32'd0 :
+                 ((reg_write && rd_wb == rs1 && rd_wb != 5'd0) ? wd : regs[rs1]);
 
-    always @(posedge clk) begin
-    if (reg_write && rd_wb != 0) begin
+assign rs2_val = (rs2 == 5'd0) ? 32'd0 :
+                 ((reg_write && rd_wb == rs2 && rd_wb != 5'd0) ? wd : regs[rs2]);
+
+// Synchronous write
+always @(posedge clk) begin
+    if (reg_write && rd_wb != 5'd0) begin
         regs[rd_wb] <= wd;
-        $display("%0t | x%0d <= %0d", $time, rd_wb, wd);
+        $display("%0t | x%0d <= %h", $time, rd_wb, wd);
     end
 end
 
-    // Initialization
-    integer i;
-    initial begin
-        for (i = 0; i < 32; i = i + 1) begin
-            regs[i] = 32'b0;
-        end 
-    end
+// Initialization
+integer i;
+initial begin
+    for (i = 0; i < 32; i = i + 1) begin
+        regs[i] = 32'b0;
+    end 
+    regs[5] = 32'd31; 
+    regs[6] = 32'd5; 
+end
+
+// Debug probe
+always @(posedge clk) begin
+    #100
+    $strobe("x1 = %d, x2 = %d, x9 = %d", regs[1], regs[2], regs[9]);
+end
+  
+
 
 endmodule
