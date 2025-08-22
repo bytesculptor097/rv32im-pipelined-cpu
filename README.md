@@ -48,9 +48,10 @@ This repository contains a custom implementation of a pipelined CPU based on the
 
 ### File Overview
 
-- **src/**: Contains the main CPU pipeline design, ALU, register file, control logic, and memory interface.
+- **rtl/**: Contains the main CPU pipeline design, ALU, register file, control logic, and memory interface.
 - **testbench/**: Provides simulation scaffolding for testing instruction execution and pipeline behavior.
 - **docs/**: Includes architecture diagrams, pipeline stage explanations, and performance analysis.
+- **assembly-tests: Provides some sample ready-to-compile assembly codes, that completely proves each instruction of this CPU.
 
 ## Documentation
 
