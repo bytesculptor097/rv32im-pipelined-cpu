@@ -38,7 +38,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
     ```
 2. Compile the source code
     ```bash
-    cd src
+    cd rtl
     make all
     ```
 3. Run the simulation and inspect the waveform/logs for correct behavior.
