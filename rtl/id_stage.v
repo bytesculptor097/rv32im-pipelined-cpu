@@ -229,12 +229,4 @@ initial begin
     regs[6] = 32'd5; 
 end
 
-// Debug probe
-always @(posedge clk) begin
-    #100
-    $strobe("x1 = %d, x2 = %d, x9 = %d", regs[1], regs[2], regs[9]);
-end
-  
-
-
 endmodule
