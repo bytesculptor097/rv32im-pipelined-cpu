@@ -29,13 +29,13 @@ This document outlines the instruction set implemented and validated in the RV32
 | SRLI     | Shift Right Logical Immediate   | I-type  |
 | SRAI     | Shift Right Arithmetic Immediate| I-type  |
 | SLTI     | Set Less Than Immediate         | I-type  |
-| SLTIU    | Set Less Than Unsigned Immediate| I-type  |
+| LUI      | Load Upper Immediate            | U-type  |
+| AUIPC    | Add Upper Immediate to PC       | U-type  |
 
 ### Load Instructions
 | Mnemonic | Description                     | Format  |
 |----------|----------------------------------|---------|
 | LW       | Load Word                       | I-type  |
-
 
 ### Store Instructions
 | Mnemonic | Description                     | Format  |
@@ -49,11 +49,8 @@ This document outlines the instruction set implemented and validated in the RV32
 | BNE      | Branch if Not Equal             | B-type  |
 | BLT      | Branch if Less Than             | B-type  |
 | BGE      | Branch if Greater or Equal      | B-type  |
-| BLTU     | Branch if Less Than Unsigned    | B-type  |
-| BGEU     | Branch if Greater or Equal Unsigned | B-type |
 | JAL      | Jump and Link                   | J-type  |
 | JALR     | Jump and Link Register          | I-type  |
-
 
 ## RV32M Extension (Multiplication & Division)
 
@@ -76,6 +73,7 @@ All instructions listed above have been:
 
 - Instructions are decoded and executed with full pipeline support, including flush and hazard mitigation.
 - Memory alignment and sign-extension are handled per RISC-V specification.
+- AUIPC and LUI are validated with operand muxing and PC-relative addressing logic.
 - Future extensions may include CSR instructions, floating-point operations, and interrupt handling.
 
 ---
