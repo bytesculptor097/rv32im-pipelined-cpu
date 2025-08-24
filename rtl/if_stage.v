@@ -60,8 +60,7 @@ module if_stage (
   end
 
     initial begin
-        mem[0] = 32'h123450b7; 
-        mem[1] = 32'h00001117; 
+        $readmemh("instr.hex", mem);
     end
 
     // Debug probes (use $strobe to align with NBA updates)
@@ -74,3 +73,4 @@ module if_stage (
             pc_branch, imm);
     end
 endmodule
+
