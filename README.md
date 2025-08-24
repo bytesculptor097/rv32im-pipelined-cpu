@@ -33,7 +33,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/bytesculptor097/rv32im-pipelined-cpu.git
+    git clone https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu.git
     cd rv32im-pipelined-cpu
     ```
 2. Compile the source code
