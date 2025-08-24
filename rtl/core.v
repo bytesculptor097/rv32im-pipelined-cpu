@@ -419,24 +419,4 @@ if_stage pc_if_imem (
     always @(posedge clk) begin
         cycle <= cycle + 1;
     end
-
-    always @(posedge clk) begin
-  if (!rst) begin
-    $display("=== Cycle %0d ===", cycle);
-    $display("IF: PC=%h, instr=%h", pc_curr, ram_out);
-    $display("ID: instr_ID=%h, pc_ID=%h, imm=%h", instr_ID, pc_ID, imm);
-    $display("EX: pc_ID_EX=%h, imm_EX=%h, branch=%b, jump=%b, jump_r=%b", pc_ID_EX, imm_EX, branch_EX, jump_EX, jump_r_EX);
-    $display("    branch_type=%b, branch_taken=%b", branch_type_EX, branch_taken_EX);
-    $display("    alu_A=%h, alu_B_pre=%h, alu_result=%h", alu_A, alu_B_pre, alu_result);
-    $display("MEM: alu_result_MEM=%h, mem_data=%h, rs2_val_MEM=%h", alu_result_MEM, mem_data, rs2_val_MEM);
-    $display("WB: rd_WB=%0d, write_data_core=%h, regwrite_WB=%b", rd_WB, write_data_core, regwrite_WB);
-    $display("Forwarding: A=%b, B=%b | Stall=%b | Flush=%b", forwardA, forwardB, stall, flush);
-    $display("");
-    if (jump_r)
-     $display("JALR redirect to %h (rs1=%h imm=%h)",
-         jalr_target_EX, alu_A, imm_EX);
-  end
-end
-
-
 endmodule
