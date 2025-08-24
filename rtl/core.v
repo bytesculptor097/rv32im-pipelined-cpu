@@ -26,14 +26,14 @@ module core (
     wire [31:0] x10_debug;
     wire [31:0] x7_debug;
     wire [31:0] x4_debug;
-    wire [2:0] branch_type;
+    wire [2:0] branch_type;  
     wire [31:0] x2_debug;
-    wire [3:0] alu_control_wire;
     wire [31:0] pc_next;
     wire [31:0] pc_curr;
     wire stall; 
     wire flush;
     wire is_auipc, is_lui;
+    
 
 // ==================================
 // Pipeline register declarations
@@ -45,17 +45,27 @@ module core (
 
 reg [31:0] instr_ID;
 assign flush = branch_taken_EX || jump_EX || jump_r_EX;
+
 reg [31:0] pc_ID;
 
 localparam [31:0] NOP = 32'h0000_0013;
+
+reg [31:0] pc_fetch;
+
+always @(posedge clk or posedge rst) begin
+  if (rst)
+    pc_fetch <= 32'd0;
+  else if (!stall)
+    pc_fetch <= pc_curr;
+end
 
 always @(posedge clk or posedge rst) begin
   if (rst || flush) begin
     instr_ID <= NOP;
     pc_ID <= 32'd0;
-  end else if(!stall) begin
-    instr_ID <= ram_out; // fetched instruction advances every cycle
-    pc_ID <= pc_curr;
+  end else if (!stall) begin
+    instr_ID <= ram_out;
+    pc_ID <= pc_fetch;  // use delayed PC
   end
 end
 
@@ -85,6 +95,35 @@ reg jump_EX;
 reg jump_r_EX;
 reg is_auipc_EX;
 reg is_lui_EX;
+reg jump_taken_EX;
+reg [31:0] jump_target_EX;
+wire [31:0] jalr_target_EX;
+reg jal_or_jalr_EX;
+
+assign jalr_target_EX = (alu_A + imm_EX) & ~32'd1;
+
+always @* begin
+  if (jump_EX || branch_taken_EX)
+    jump_target_EX = pc_ID_EX + imm_EX;
+  else
+    jump_target_EX = 32'd0;
+end
+
+wire [31:0] alu_A =
+    is_auipc_EX ? pc_ID_EX :
+    is_lui_EX   ? 32'd0 :
+    (forwardA == 2'b10) ? alu_result_MEM :
+    (forwardA == 2'b01) ? write_data_core :
+                          rs1_val_EX;
+
+wire [31:0] alu_B_pre =
+    (forwardB == 2'b10) ? alu_result_MEM :
+    (forwardB == 2'b01) ? write_data_core :
+                          rs2_val_EX;
+
+wire [31:0] alu_B =
+    (is_auipc_EX || is_lui_EX) ? imm_EX :
+    alusrc_EX ? imm_EX : alu_B_pre;
 
 always @(posedge clk or posedge rst) begin
   if (rst || flush) begin         // flush must also bubble ID/EX
@@ -109,6 +148,8 @@ always @(posedge clk or posedge rst) begin
     jump_r_EX      <= 1'b0;
     is_auipc_EX    <= 1'b0;
     is_lui_EX      <= 1'b0;
+    
+  
   end else if (stall) begin
     // Insert bubble on stall (hold IF/ID externally)
     rd_EX          <= 5'd0;
@@ -155,27 +196,9 @@ always @(posedge clk or posedge rst) begin
     jump_r_EX      <= jump_r;
     is_auipc_EX    <= is_auipc;
     is_lui_EX      <= is_lui;
+  
   end
 end
-
-wire [31:0] alu_A =
-    is_lui_EX   ? 32'd0 :
-    is_auipc_EX ? pc_ID_EX :
-    (forwardA == 2'b10) ? alu_result_MEM :
-    (forwardA == 2'b01) ? write_data_core :
-                          rs1_val_EX;
-
-wire [31:0] alu_B =
-    alusrc_EX ? imm_EX :
-    (forwardB == 2'b10) ? alu_result_MEM :
-    (forwardB == 2'b01) ? write_data_core :
-                          rs2_val_EX;
-
-wire [31:0] branch_B =
-    (forwardB == 2'b10) ? alu_result_MEM :
-    (forwardB == 2'b01) ? write_data_core :
-                          rs2_val_EX;
-
 
 
 reg branch_taken_EX;
@@ -183,17 +206,17 @@ reg branch_taken_EX;
 always @* begin
   branch_taken_EX = 1'b0;
   if (branch_EX) begin
-    case (branch_type_EX)
-      3'b000: branch_taken_EX = (alu_A == branch_B);                      // BEQ
-      3'b001: branch_taken_EX = (alu_A != branch_B);                      // BNE
-      3'b100: branch_taken_EX = ($signed(alu_A) <  $signed(branch_B));    // BLT
-      3'b101: branch_taken_EX = ($signed(alu_A) >= $signed(branch_B));    // BGE
-      3'b110: branch_taken_EX = (alu_A <  branch_B);                      // BLTU
-      3'b111: branch_taken_EX = (alu_A >= branch_B);                      // BGEU
+    case (branch_type_EX) // should be the branch funct3
+      3'b000: branch_taken_EX = (alu_A == alu_B_pre);                      // BEQ
+      3'b001: branch_taken_EX = (alu_A != alu_B_pre);                      // BNE
+      3'b100: branch_taken_EX = ($signed(alu_A) <  $signed(alu_B_pre));    // BLT
+      3'b101: branch_taken_EX = ($signed(alu_A) >= $signed(alu_B_pre));    // BGE
+      3'b110: branch_taken_EX = (alu_A <  alu_B_pre);                      // BLTU
+      3'b111: branch_taken_EX = (alu_A >= alu_B_pre);                      // BGEU
+      default: branch_taken_EX = 1'b0;
     endcase
   end
 end
-
 
 
 // ==================================
@@ -207,7 +230,6 @@ reg        memread_MEM;
 reg        memwrite_MEM;
 reg        regwrite_MEM;
 reg [31:0] alu_result_MEM;
-reg zero_EX;
 
 
 
@@ -220,7 +242,6 @@ always @(posedge clk or posedge rst) begin
     memwrite_MEM  <= 1'b0;
     regwrite_MEM  <= 1'b0;
     alu_result_MEM <= 32'd0;
-    zero_EX       <= 1'b0;
    
   end else begin
     alu_result_EX <= alu_result;
@@ -230,7 +251,6 @@ always @(posedge clk or posedge rst) begin
     memwrite_MEM  <= memwrite_EX;
     regwrite_MEM  <= regwrite_EX;
     alu_result_MEM <= alu_result;
-    zero_EX       <= zero;
     
   end
 end
@@ -280,7 +300,7 @@ always @(posedge clk or posedge rst) begin
 end
 
 // Final gated regfile write enable
-wire reg_write = regwrite_WB;
+wire reg_write = regwrite_WB && (rd_WB != 5'd0);
 wire [31:0] write_data_core = (memtoreg_WB   ?  mem_data_WB   : alu_result_WB);
 
 
@@ -315,12 +335,15 @@ if_stage pc_if_imem (
     .clk(clk),
     .rst(rst),
     .stall(stall),
+    .flush(flush),
+    .jalr_target(jalr_target_EX),
     .branch_taken(branch_taken_EX),
     .pc_branch(pc_ID_EX),
     .imm(imm_EX),
     .jump(jump_EX),
     .jump_r(jump_r_EX),
-    .rs1value( (forwardA == 2'b10) ? alu_result_MEM : (forwardA == 2'b01) ? write_data_core : rs1_val_EX),
+    .rs1value(rs1_val_EX),
+    .jump_target(jump_target_EX),
     .din(din),
     .we(1'b0),
     .dout(ram_out),
@@ -373,6 +396,9 @@ if_stage pc_if_imem (
         .ALUControl(alu_control),
         .A(alu_A),
         .B(alu_B),
+        .pc_ID_EX(pc_ID_EX),
+        .jump(jump_EX),
+        .jump_r(jump_r_EX),
         .Result(alu_result),
         .zero(zero)
     );
@@ -393,6 +419,24 @@ if_stage pc_if_imem (
     always @(posedge clk) begin
         cycle <= cycle + 1;
     end
+
+    always @(posedge clk) begin
+  if (!rst) begin
+    $display("=== Cycle %0d ===", cycle);
+    $display("IF: PC=%h, instr=%h", pc_curr, ram_out);
+    $display("ID: instr_ID=%h, pc_ID=%h, imm=%h", instr_ID, pc_ID, imm);
+    $display("EX: pc_ID_EX=%h, imm_EX=%h, branch=%b, jump=%b, jump_r=%b", pc_ID_EX, imm_EX, branch_EX, jump_EX, jump_r_EX);
+    $display("    branch_type=%b, branch_taken=%b", branch_type_EX, branch_taken_EX);
+    $display("    alu_A=%h, alu_B_pre=%h, alu_result=%h", alu_A, alu_B_pre, alu_result);
+    $display("MEM: alu_result_MEM=%h, mem_data=%h, rs2_val_MEM=%h", alu_result_MEM, mem_data, rs2_val_MEM);
+    $display("WB: rd_WB=%0d, write_data_core=%h, regwrite_WB=%b", rd_WB, write_data_core, regwrite_WB);
+    $display("Forwarding: A=%b, B=%b | Stall=%b | Flush=%b", forwardA, forwardB, stall, flush);
+    $display("");
+    if (jump_r)
+     $display("JALR redirect to %h (rs1=%h imm=%h)",
+         jalr_target_EX, alu_A, imm_EX);
+  end
+end
 
 
 endmodule

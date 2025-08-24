@@ -4,6 +4,9 @@ module ex_stage (
     input wire  [6:0] funct7,
     input wire  [31:0] A,
     input wire  [31:0] B,
+    input wire  [31:0] pc_ID_EX,
+    input wire         jump,
+    input wire         jump_r,
     output reg  [3:0] ALUControl,
     output reg  [31:0] Result,
     output reg         zero
@@ -91,30 +94,33 @@ end
 //----------------------------------------------------- 
 
     always @(*) begin
-        case (ALUControl)
-            4'b0000: Result = A & B;                           // AND
-            4'b0001: Result = A | B;                           // OR
-            4'b0010: Result = A + B;                           // ADD
-            4'b0110: Result = A - B;                           // SUB
-            4'b0011: Result = A ^ B;                           // XOR
-            4'b1000: Result = A << B[4:0];                     // SLL
-            4'b1001: Result = A >> B[4:0];                     // SRL
-            4'b0101: Result = A >>> B[4:0];                    // SRA
-            4'b0111: Result = (A_signed < B_signed) ? 32'b1 : 32'b0; // SLT
-            4'b0100: Result = (A < B) ? 32'b1 : 32'b0;         // SLTU
+        if (jump || jump_r) begin
+            Result = pc_ID_EX + 4;
+        end else begin
+            case (ALUControl)
+              4'b0000: Result = A & B;                           // AND
+              4'b0001: Result = A | B;                           // OR
+              4'b0010: Result = A + B;                           // ADD
+              4'b0110: Result = A - B;                           // SUB
+              4'b0011: Result = A ^ B;                           // XOR
+              4'b1000: Result = A << B[4:0];                     // SLL
+              4'b1001: Result = A >> B[4:0];                     // SRL
+              4'b0101: Result = A >>> B[4:0];                    // SRA
+              4'b0111: Result = (A_signed < B_signed) ? 32'b1 : 32'b0; // SLT
+              4'b0100: Result = (A < B) ? 32'b1 : 32'b0;         // SLTU
 
             // Signed MUL/DIV/REM
-            4'b1010: Result = signed_mul;                      // MUL
-            4'b1011: Result = (B == 0) ? 32'hFFFFFFFF : signed_div; // DIV
-            4'b1101: Result = (B == 0) ? A : signed_rem;       // REM
+              4'b1010: Result = signed_mul;                      // MUL
+              4'b1011: Result = (B == 0) ? 32'hFFFFFFFF : signed_div; // DIV
+              4'b1101: Result = (B == 0) ? A : signed_rem;       // REM
 
             // Unsigned DIV/REM
-            4'b1100: Result = (B == 0) ? 32'hFFFFFFFF : A / B; // DIVU
-            4'b1110: Result = (B == 0) ? A : A % B;            // REMU
+              4'b1100: Result = (B == 0) ? 32'hFFFFFFFF : A / B; // DIVU
+              4'b1110: Result = (B == 0) ? A : A % B;            // REMU
 
-            default: Result = 32'b0;                           // Invalid
-        endcase
-        
+              default: Result = 32'b0;                           // Invalid
+            endcase
+        end
 
         zero = (Result == 32'b0);    
     

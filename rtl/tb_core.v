@@ -7,7 +7,7 @@ module tb_core;
     core uut (
         .clk(clk),
         .rst(rst)
-
+        // .x5_debug(x5_debug) // Uncomment if needed for debug
     );
 
     // Clock generation
@@ -19,11 +19,11 @@ module tb_core;
     // Simulation control
     initial begin
         rst = 1;
-        #20 rst = 0;
+        #3 rst = 0; // Deassert reset BEFORE first rising edge at time 5
 
         // Run for a few cycles
         #150;
 
-      $finish;
+        $finish;
     end
 endmodule
