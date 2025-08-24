@@ -10,6 +10,10 @@ This repository contains a custom implementation of a pipelined CPU based on the
 - **Memory Interface**: Supports interaction with instruction and data memory modules.
 - **Testbench**: Reference testbench for simulation and validation.
 
+## Block diagram
+
+<img width="1122" height="687" alt="Screenshot (19)" src="https://github.com/user-attachments/assets/5785d714-5e6e-4cc2-b003-650e6ff4750c" />
+
 ## Directory Structure
 
 ```
