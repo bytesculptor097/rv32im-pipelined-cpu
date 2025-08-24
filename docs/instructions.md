@@ -43,14 +43,17 @@ This document outlines the instruction set implemented and validated in the RV32
 | SW       | Store Word                      | S-type  |
 
 ### Control Flow Instructions
-| Mnemonic | Description                     | Format  |
-|----------|----------------------------------|---------|
-| BEQ      | Branch if Equal                 | B-type  |
-| BNE      | Branch if Not Equal             | B-type  |
-| BLT      | Branch if Less Than             | B-type  |
-| BGE      | Branch if Greater or Equal      | B-type  |
-| JAL      | Jump and Link                   | J-type  |
-| JALR     | Jump and Link Register          | I-type  |
+| Mnemonic | Description                          | Format  |
+|----------|--------------------------------------|---------|
+| BEQ      | Branch if Equal                      | B-type  |
+| BNE      | Branch if Not Equal                  | B-type  |
+| BLT      | Branch if Less Than                  | B-type  |
+| BGE      | Branch if Greater or Equal           | B-type  |
+| BLTU     | Branch if Less Than (Unsigned)       | B-type  |
+| BGEU     | Branch if Greater or Equal (Unsigned)| B-type  |
+| JAL      | Jump and Link                        | J-type  |
+| JALR     | Jump and Link Register               | I-type  |
+
 
 ## RV32M Extension (Multiplication & Division)
 
