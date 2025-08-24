@@ -224,19 +224,7 @@ integer i;
 initial begin
     for (i = 0; i < 32; i = i + 1) begin
         regs[i] = 32'b0;
-    end 
-     regs[1] = 32'd3; 
-     //regs[2] = 32'd20;
-    // regs[5] = 32'd31; 
-    // regs[6] = 32'd5; 
+    end  
 end
-
-// Debug probe
-always @(posedge clk) begin
-    #100
-    $strobe("x1 = %d, x2 = %d, x9 = %d", regs[1], regs[2], regs[9]);
-end
-  
-
 
 endmodule
