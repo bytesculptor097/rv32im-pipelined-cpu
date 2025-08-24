@@ -22,8 +22,9 @@ module tb_core;
         #3 rst = 0; // Deassert reset BEFORE first rising edge at time 5
 
         // Run for a few cycles
-        #150;
+        #300;
 
         $finish;
     end
+
 endmodule
