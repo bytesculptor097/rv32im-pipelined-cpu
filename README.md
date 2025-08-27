@@ -49,6 +49,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
    ```bash
    vvp rv32im.vvp
    ```
+#### `**Click [Here](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/assembly-tests) for the test assembly codes**
 
 ### File Overview
 
