@@ -51,9 +51,6 @@ This repository contains a custom implementation of a pipelined CPU based on the
    ```
 4. Change the code in `instr.S` file for testing different operations
 ### `Click` [Here](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/assembly-tests) `for some sample test assembly codes`
- <h1>This is very large text</h1>
- <h2>This is slightly smaller</h2>
- <span style="font-size:24px;">Custom sized text</span>
 ### File Overview
 
 - **rtl/**: Contains the main CPU pipeline design, ALU, register file, control logic, and memory interface.
