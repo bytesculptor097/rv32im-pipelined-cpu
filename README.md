@@ -16,19 +16,17 @@ This repository contains a custom implementation of a pipelined CPU based on the
 
 ## Directory Structure
 
+├── [rtl](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/rtl)                       # Verilog source files for CPU and components
 
-.
-├── [rtl](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/rtl)          # Verilog source files for CPU and components
+├── [testbench](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/testbench)           # Simulation files and testcases
 
-├── [testbench](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/testbench)    # Simulation files and testcases
-
-├── [docs](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/docs)         # Design documentation (pipeline diagrams, timing analysis, etc.)
+├── [docs](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/docs)                     # Design documentation (pipeline diagrams, timing analysis, etc.)
 
 ├── [assembly-tests](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/assembly-tests) # Sample test assembly codes
 
-├── README.md     # Project overview and instructions
+├── README.md                                                                                            # Project overview and instructions
 
-├── [LICENSE](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/LICENSE)       # Project license
+├── [LICENSE](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/LICENSE)               # Project license
 
 
 ## Getting Started
