@@ -63,6 +63,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 See the [docs](./docs/) folder for:
 
 - Pipeline architecture overview
+- Block/Architectural diagram
 - Hazard detection and forwarding logic
 - Example instruction flows
 - RISC-V GNU toolchain installation
