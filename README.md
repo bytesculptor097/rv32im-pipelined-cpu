@@ -16,7 +16,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
 
 ## Directory Structure
 
-├── [rtl](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/rtl)                    
+├── [rtl](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/rtl)                   rtl                 
 
 ├── [testbench](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/testbench)        
 
