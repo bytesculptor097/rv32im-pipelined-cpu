@@ -53,7 +53,7 @@ This repository contains a custom implementation of a pipelined CPU based on the
    vvp rv32im.vvp
    ```
 4. Change the code in `instr.S` file for testing different operations
-5. 
+    
  `Click` **[`Here`](https://github.com/vlsienthusiast00x/rv32im-pipelined-cpu/tree/main/assembly-tests)** `for some sample test assembly codes`
 ### File Overview
 
